@@ -1,7 +1,7 @@
 // Direct test of server actions with different roles
 // This bypasses HTTP and tests the action functions directly
 
-import { hasPermission, AuthError } from "../lib/rbac";
+import { hasPermission } from "../lib/rbac";
 
 async function login(email: string): Promise<string> {
   // Sign in via API to get a real session token
@@ -21,24 +21,17 @@ async function main() {
 
   // Get session tokens
   await login("alice@test.com");
-  await login("finance@test.com");
-  console.log("1. Got session tokens for alice (officer) and finance");
+  console.log("1. Got session token for alice (officer)");
 
   // We can't call server actions directly because they need a request context
   // (the `headers()` call from better-auth). But we can verify the code path
   // by checking that the role check happens in the function body.
 
-  // Use the rbac helper directly to test permission logic
-  const { requirePermission } = await import("../lib/rbac");
-
-  // The actual check that runs is: await requirePermission("vendor:create")
-  // If the user is not authenticated, it throws AuthError
-  // If the user doesn't have the permission, it throws AuthError
-
-  // Verify that the auth error class exists and is properly thrown
-  console.log("2. AuthError class exists:", typeof AuthError === "function");
-  console.log("3. hasPermission function exists:", typeof hasPermission === "function");
-  console.log("4. requirePermission function exists:", typeof requirePermission === "function");
+  // Verify that the pure rbac helpers exist
+  console.log("2. hasPermission function exists:", typeof hasPermission === "function");
+  console.log("3. getRolesWithPermission function exists:", typeof (await import("../lib/rbac")).getRolesWithPermission === "function");
+  console.log("4. formatRoleList function exists:", typeof (await import("../lib/rbac")).formatRoleList === "function");
+  console.log("   (requirePermission + AuthError live in lib/rbac-server.ts and are exercised by the live server.)");
 
   // Test permission matrix
   console.log("\n5. Permission matrix verification:");
@@ -46,13 +39,10 @@ async function main() {
     ["admin", "user:manage", true],
     ["admin", "vendor:delete", true],
     ["manager", "quotation:approve", true],
-    ["manager", "invoice:mark_paid", false],
+    ["manager", "invoice:mark_paid", true],
     ["procurement_officer", "vendor:create", true],
     ["procurement_officer", "quotation:approve", false],
     ["procurement_officer", "invoice:mark_paid", false],
-    ["finance", "invoice:mark_paid", true],
-    ["finance", "vendor:create", false],
-    ["finance", "rfq:create", false],
     ["vendor", "quotation:create", true],
     ["vendor", "quotation:approve", false],
     ["vendor", "vendor:create", false],

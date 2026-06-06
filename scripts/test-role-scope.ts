@@ -1,6 +1,6 @@
 import { ROLE_PERMISSIONS, ROLE_LABELS, type Role, type Permission } from "../lib/rbac";
 
-const ALL_ROLES: Role[] = ["admin", "manager", "procurement_officer", "finance", "vendor"];
+const ALL_ROLES: Role[] = ["admin", "manager", "procurement_officer", "vendor"];
 
 function getPerms(role: Role): Permission[] {
   return ROLE_PERMISSIONS[role] || [];
@@ -8,25 +8,30 @@ function getPerms(role: Role): Permission[] {
 
 const SPEC: Record<Role, { can: Permission[]; cannot: Permission[]; description: string }> = {
   admin: {
-    description: "Manage users, manage vendors, view analytics",
+    description: "Manage users, manage vendors, view procurement analytics",
     can: ["vendor:create", "vendor:update", "vendor:delete", "user:manage", "report:view"],
     cannot: [
       "rfq:create", "rfq:send", "rfq:delete",
       "quotation:create", "quotation:approve", "quotation:reject",
-      "po:create",
-      "invoice:mark_paid",
+      "po:create", "po:view",
+      "invoice:view", "invoice:mark_paid",
       "approvals:view", "activity:view",
     ],
   },
   manager: {
-    description: "Approve or reject procurement requests, monitor workflows",
-    can: ["quotation:approve", "quotation:reject", "approvals:view", "activity:view", "report:view"],
+    description: "Approve or reject procurement requests, monitor procurement workflows",
+    can: [
+      "quotation:approve", "quotation:reject",
+      "approvals:view",
+      "invoice:view", "invoice:mark_paid",
+      "activity:view",
+      "report:view",
+    ],
     cannot: [
       "vendor:create", "vendor:update", "vendor:delete",
       "rfq:create", "rfq:send", "rfq:delete",
       "quotation:create",
       "po:create",
-      "invoice:mark_paid",
       "user:manage",
     ],
   },
@@ -44,21 +49,6 @@ const SPEC: Record<Role, { can: Permission[]; cannot: Permission[]; description:
       "vendor:delete", "rfq:delete",
       "quotation:approve", "quotation:reject",
       "invoice:mark_paid",
-      "user:manage",
-    ],
-  },
-  finance: {
-    description: "Manages invoices & payments (extended role)",
-    can: [
-      "invoice:view", "invoice:mark_paid",
-      "po:view",
-      "report:view", "activity:view", "approvals:view",
-    ],
-    cannot: [
-      "vendor:create", "vendor:update", "vendor:delete",
-      "rfq:create", "rfq:send", "rfq:delete",
-      "quotation:create", "quotation:approve", "quotation:reject",
-      "po:create",
       "user:manage",
     ],
   },
@@ -89,21 +79,18 @@ function main() {
     console.log(`--- ${ROLE_LABELS[role]} (${role}) ---`);
     console.log(`  Description: ${expected.description}`);
 
-    // Check required permissions are granted
     for (const p of expected.can) {
       if (!perms.includes(p)) {
-        console.log(`  ✗ MISSING required permission: ${p}`);
+        console.log(`  FAIL MISSING required permission: ${p}`);
         allPassed = false;
       }
     }
-    // Check out-of-scope permissions are denied
     for (const p of expected.cannot) {
       if (perms.includes(p)) {
-        console.log(`  ✗ HAS out-of-scope permission: ${p}`);
+        console.log(`  FAIL HAS out-of-scope permission: ${p}`);
         allPassed = false;
       }
     }
-    // Check no surprise permissions (not in can or cannot)
     const allowed = new Set([...expected.can, ...expected.cannot]);
     for (const p of perms) {
       if (!allowed.has(p)) {
@@ -112,11 +99,11 @@ function main() {
     }
 
     console.log(`  Permissions: ${perms.join(", ")}`);
-    console.log(`  ✓ Matches spec\n`);
+    console.log(`  PASS Matches spec\n`);
   }
 
   if (!allPassed) {
-    console.log("✗ Audit FAILED");
+    console.log("FAIL Audit FAILED");
     process.exit(1);
   }
   console.log("=== All roles match the spec ===");

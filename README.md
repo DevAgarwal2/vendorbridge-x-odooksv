@@ -59,22 +59,20 @@ All passwords are `demo1234`.
 | Email | Role | What they can do |
 |---|---|---|
 | `admin@vendorbridge.io` | Admin | Manage users + vendors, view analytics |
-| `manager@vendorbridge.io` | Manager | Review RFQs, approve quotations, view analytics |
-| `officer@vendorbridge.io` | Procurement Officer | Create RFQs, compare quotes, raise POs |
-| `finance@vendorbridge.io` | Finance | Approve POs, manage invoices, view reports |
+| `manager@vendorbridge.io` | Manager | Approve quotations, monitor workflow, mark invoices paid |
+| `officer@vendorbridge.io` | Procurement Officer | Create RFQs, compare quotes, generate POs + invoices |
 | `vendor@vendorbridge.io` | Vendor | View assigned RFQs, submit quotations |
 
 There's a one-click "Sign in as..." row on the login page.
 
 ## Roles & permissions
 
-Five roles, each scoped tightly per the problem statement. `lib/rbac.ts` is the source of truth.
+Four roles, each scoped tightly to the problem statement. `lib/rbac.ts` is the source of truth.
 
 - **Admin** — users + vendors + analytics. Cannot create RFQs/POs.
-- **Manager** — review pipeline, approve RFQs/POs, analytics. Cannot create vendors/RFQs/POs.
-- **Procurement Officer** — full RFQ → PO workflow. Cannot approve or create vendors.
-- **Finance** — PO approval + invoice management + reports. Cannot create RFQs/vendors.
-- **Vendor** — only sees RFQs they were invited to, submits quotations. No admin pages.
+- **Manager / Approver** — approve or reject procurement requests, monitor the workflow end-to-end, mark invoices paid. Cannot create vendors/RFQs/POs.
+- **Procurement Officer** — full RFQ → PO → invoice workflow. Cannot approve, cannot create vendors.
+- **Vendor** — only sees RFQs they were invited to, submits quotations, views their own POs. No admin pages.
 
 ## Available scripts
 
@@ -169,5 +167,5 @@ Paste this into your assistant:
 > npm run seed:users
 > npm run dev
 > ```
-> Open <http://localhost:3000>. Demo logins (password `demo1234`): `admin@`, `manager@`, `officer@`, `finance@`, `vendor@vendorbridge.io` (all `vendorbridge.io`).
+> Open <http://localhost:3000>. Demo logins (password `demo1234`): `admin@`, `manager@`, `officer@`, `vendor@vendorbridge.io` (all `vendorbridge.io`).
 > Stack: Next.js 16, React 19, TypeScript, Tailwind v4, shadcn/ui (Base UI), Drizzle + better-sqlite3, Better Auth, Zod. Use `bun`. Read `README.md`, `lib/db/schema.ts`, `lib/rbac.ts`, and `lib/actions.ts` before changing anything. Run `npm run lint` and `npx tsc --noEmit` before declaring done.

@@ -1,11 +1,11 @@
-import { getSession } from "@/lib/session";
+// Pure RBAC module: types, role definitions, and side-effect-free helpers.
+// Safe to import from client components.
 
-export type Role = "procurement_officer" | "manager" | "finance" | "admin" | "vendor";
+export type Role = "procurement_officer" | "manager" | "admin" | "vendor";
 
 export const ROLE_LABELS: Record<Role, string> = {
   procurement_officer: "Procurement Officer",
   manager: "Manager / Approver",
-  finance: "Finance",
   admin: "Admin",
   vendor: "Vendor",
 };
@@ -38,9 +38,11 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "report:view",
   ],
   // Manager / Approver: spec says "Approve or reject procurement requests, Monitor procurement workflows".
+  // Also handles invoice payment as part of monitoring the procurement workflow end-to-end.
   manager: [
     "quotation:approve", "quotation:reject",
     "approvals:view",
+    "invoice:view", "invoice:mark_paid",
     "activity:view",
     "report:view",
   ],
@@ -51,12 +53,6 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "quotation:create",
     "po:create", "po:view",
     "invoice:view",
-    "report:view", "activity:view", "approvals:view",
-  ],
-  // Finance (extended role): manages invoices & payments.
-  finance: [
-    "invoice:view", "invoice:mark_paid",
-    "po:view",
     "report:view", "activity:view", "approvals:view",
   ],
   // Vendor: spec says "Submit quotations, Track RFQ status, View POs".
@@ -74,41 +70,22 @@ export type SessionUser = {
   role: Role;
 };
 
-export class AuthError extends Error {
-  status: number;
-  constructor(message: string, status = 403) {
-    super(message);
-    this.name = "AuthError";
-    this.status = status;
-  }
-}
-
-export async function requireUser(): Promise<SessionUser> {
-  const session = await getSession();
-  if (!session?.user) {
-    throw new AuthError("Not authenticated", 401);
-  }
-  const u = session.user as any;
-  const role = (u.role || "procurement_officer") as Role;
-  return {
-    id: u.id,
-    email: u.email,
-    name: u.name || u.email,
-    role,
-  };
-}
-
-export async function requirePermission(permission: Permission): Promise<SessionUser> {
-  const user = await requireUser();
-  const allowed = ROLE_PERMISSIONS[user.role] || [];
-  if (!allowed.includes(permission)) {
-    throw new AuthError(`Role "${ROLE_LABELS[user.role]}" cannot perform this action`, 403);
-  }
-  return user;
-}
-
 export function hasPermission(role: Role, permission: Permission): boolean {
   return (ROLE_PERMISSIONS[role] || []).includes(permission);
+}
+
+export function getRolesWithPermission(permission: Permission): Role[] {
+  return (Object.keys(ROLE_PERMISSIONS) as Role[]).filter((r) =>
+    ROLE_PERMISSIONS[r].includes(permission)
+  );
+}
+
+export function formatRoleList(roles: Role[]): string {
+  if (roles.length === 0) return "no role";
+  const names = roles.map((r) => ROLE_LABELS[r]);
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} or ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")} or ${names[names.length - 1]}`;
 }
 
 export function canViewNavItem(role: Role, href: string): boolean {

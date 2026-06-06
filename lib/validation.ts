@@ -86,7 +86,7 @@ export const registerSchema = z.object({
   phone: phoneSchema,
   country: optionalString(80),
   role: z
-    .enum(["procurement_officer", "manager", "finance", "admin", "vendor"])
+    .enum(["procurement_officer", "manager", "admin", "vendor"])
     .default("procurement_officer"),
 });
 

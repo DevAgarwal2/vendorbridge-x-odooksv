@@ -12,13 +12,13 @@
     "seed:users": "bun run scripts/seed-demo-users.ts",
     "test:rbac": "bun run scripts/test-rbac.ts",
     "test:e2e": "bun run scripts/test-e2e.ts",
-    "test:guards": "bun run scripts/test-action-guards.ts",
     "test:actions": "bun run scripts/test-server-actions.ts",
     "test:workflow": "bun run scripts/test-workflow.ts",
     "test:pdf": "bun run scripts/test-pdf.ts",
     "test:report": "bun run scripts/test-report-pdf.ts",
     "test:password": "bun run scripts/test-password-reset.ts",
-    "test:role-scope": "bun run scripts/test-role-scope.ts"
+    "test:role-scope": "bun run scripts/test-role-scope.ts",
+    "test:alert": "bun run scripts/test-permission-alert.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

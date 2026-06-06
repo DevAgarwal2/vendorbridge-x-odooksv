@@ -202,7 +202,7 @@ export const user = sqliteTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
   image: text("image"),
-  role: text("role", { enum: ["procurement_officer", "manager", "finance", "admin", "vendor"] }).notNull().default("procurement_officer"),
+  role: text("role", { enum: ["procurement_officer", "manager", "admin", "vendor"] }).notNull().default("procurement_officer"),
   firstName: text("first_name").notNull().default(""),
   lastName: text("last_name").notNull().default(""),
   phone: text("phone").notNull().default(""),

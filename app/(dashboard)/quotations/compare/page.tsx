@@ -2,6 +2,7 @@ import { getQuotationsForRfq } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { rfqs } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { requireUser } from "@/lib/rbac-server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,8 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { approveQuotation, createPurchaseOrderFromQuotation } from "@/lib/actions";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { QuotationActions } from "@/components/quotations/quotation-actions";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default async function ComparePage({
@@ -22,7 +23,7 @@ export default async function ComparePage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const sp = await searchParams;
+  const [user, sp] = await Promise.all([requireUser(), (async () => await searchParams)()]);
   const rfqId = Number(sp?.rfqId);
   const [rfq] = rfqId ? await db.select().from(rfqs).where(eq(rfqs.id, rfqId)) : [null];
   const quotations = rfqId ? await getQuotationsForRfq(rfqId) : [];
@@ -119,25 +120,12 @@ export default async function ComparePage({
                 <TableCell className="text-sm font-medium">Action</TableCell>
                 {quotations.map((q) => (
                   <TableCell key={q.id} className="text-center">
-                    {q.status === "submitted" ? (
-                      <form
-                        action={async () => {
-                          "use server";
-                          await approveQuotation(q.id);
-                          await createPurchaseOrderFromQuotation(q.id);
-                        }}
-                      >
-                        <Button type="submit" size="sm">
-                          <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                          Select & Approve
-                        </Button>
-                      </form>
+                    {q.status === "rejected" ? (
+                      <span className="text-xs text-muted-foreground italic">Rejected</span>
                     ) : q.status === "approved" ? (
-                      <Badge variant="outline" className="text-[10px] border-emerald-200 text-emerald-700 bg-emerald-50">
-                        Approved
-                      </Badge>
+                      <QuotationActions role={user.role} quotationId={q.id} status="approved" />
                     ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
+                      <QuotationActions role={user.role} quotationId={q.id} status="submitted" />
                     )}
                   </TableCell>
                 ))}

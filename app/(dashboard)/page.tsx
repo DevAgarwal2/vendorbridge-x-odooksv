@@ -2,14 +2,6 @@ import { getDashboardStats, getRecentPurchaseOrders, getSpendingTrends } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { SpendingBarChart } from "@/components/charts/spending-bar-chart";
 import {
   FileText,
@@ -154,44 +146,38 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-xs">PO#</TableHead>
-                  <TableHead className="text-xs">Vendor</TableHead>
-                  <TableHead className="text-xs text-right">Amount</TableHead>
-                  <TableHead className="text-xs text-right">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentPOs.map((po) => (
-                  <TableRow key={po.id}>
-                    <TableCell className="text-sm font-medium">{po.poNumber}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {po.vendorName || "—"}
-                    </TableCell>
-                    <TableCell className="text-sm text-right">
+            <ul className="divide-y divide-border -mx-6 -mb-6">
+              {recentPOs.map((po) => (
+                <li key={po.id} className="px-6 py-2.5 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium truncate">
+                          {po.vendorName || "—"}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] capitalize shrink-0"
+                        >
+                          {po.status.replace(/_/g, " ")}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground font-mono mt-0.5 truncate">
+                        {po.poNumber}
+                      </p>
+                    </div>
+                    <div className="text-sm font-medium tabular-nums shrink-0">
                       {po.grandTotal ? formatCurrency(po.grandTotal) : "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] capitalize"
-                      >
-                        {po.status}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {recentPOs.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center text-sm text-muted-foreground py-6">
-                      No purchase orders yet.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                    </div>
+                  </div>
+                </li>
+              ))}
+              {recentPOs.length === 0 && (
+                <li className="px-6 py-8 text-center text-sm text-muted-foreground">
+                  No purchase orders yet.
+                </li>
+              )}
+            </ul>
           </CardContent>
         </Card>
       </div>

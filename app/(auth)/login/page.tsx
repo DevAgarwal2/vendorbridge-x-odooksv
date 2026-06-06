@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Loader2, Shield, Briefcase, Truck, Calculator, Store, ArrowRight } from "lucide-react";
+import { Loader2, Shield, Briefcase, Truck, Store, ArrowRight } from "lucide-react";
 
 type DemoUser = {
   email: string;
@@ -45,14 +45,6 @@ const DEMO_USERS: DemoUser[] = [
     icon: Truck,
     description: "Creates RFQs, vendors, POs",
     color: "text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border-emerald-200",
-  },
-  {
-    email: "finance@vendorbridge.io",
-    role: "finance",
-    label: "Finance",
-    icon: Calculator,
-    description: "Manages invoices & payments",
-    color: "text-amber-600 bg-amber-50 hover:bg-amber-100 border-amber-200",
   },
   {
     email: "vendor@vendorbridge.io",
@@ -163,6 +155,13 @@ export default function LoginPage() {
           </Button>
         </form>
 
+        <p className="text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="font-medium text-primary hover:underline">
+            Register
+          </Link>
+        </p>
+
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <Separator />
@@ -203,13 +202,6 @@ export default function LoginPage() {
 
         <p className="text-center text-xs text-muted-foreground">
           Demo password: <code className="bg-muted px-1.5 py-0.5 rounded font-mono">demo1234</code>
-        </p>
-
-        <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-medium text-primary hover:underline">
-            Register
-          </Link>
         </p>
       </CardContent>
     </Card>

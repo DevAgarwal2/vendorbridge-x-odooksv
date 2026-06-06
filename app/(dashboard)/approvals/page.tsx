@@ -1,6 +1,6 @@
 import { getPendingApprovals } from "@/lib/actions";
+import { requireUser } from "@/lib/rbac-server";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,11 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { approveQuotation, rejectQuotation, createPurchaseOrderFromQuotation } from "@/lib/actions";
-import { CheckCircle, XCircle } from "lucide-react";
+import { QuotationActions } from "@/components/quotations/quotation-actions";
 
 export default async function ApprovalsPage() {
-  const pending = await getPendingApprovals();
+  const [pending, user] = await Promise.all([getPendingApprovals(), requireUser()]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -23,7 +22,7 @@ export default async function ApprovalsPage() {
             Approvals
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Review and approve procurement requests.
+            Review and approve procurement requests. Approved quotations are picked up by Procurement Officers to generate POs.
           </p>
         </div>
       </div>
@@ -51,32 +50,8 @@ export default async function ApprovalsPage() {
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{q.deliveryDays} days</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{q.paymentTerms}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <form
-                        action={async () => {
-                          "use server";
-                          await approveQuotation(q.id);
-                          await createPurchaseOrderFromQuotation(q.id);
-                        }}
-                      >
-                        <Button type="submit" size="sm" variant="default">
-                          <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                          Approve
-                        </Button>
-                      </form>
-                      <form
-                        action={async () => {
-                          "use server";
-                          await rejectQuotation(q.id);
-                        }}
-                      >
-                        <Button type="submit" size="sm" variant="outline">
-                          <XCircle className="h-3.5 w-3.5 mr-1" />
-                          Reject
-                        </Button>
-                      </form>
-                    </div>
+                  <TableCell>
+                    <QuotationActions role={user.role} quotationId={q.id} status={q.status} />
                   </TableCell>
                 </TableRow>
               ))}

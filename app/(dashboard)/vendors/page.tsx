@@ -3,7 +3,6 @@ import { getVendors, getVendorCounts } from "@/lib/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -13,8 +12,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Search, Plus, Eye } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import { VendorRatingCell } from "@/components/vendors/vendor-rating-cell";
+import { RealtimeSearch } from "@/components/ui/realtime-search";
 
 export default async function VendorsPage({
   searchParams,
@@ -62,15 +62,7 @@ export default async function VendorsPage({
           </Link>
         </div>
 
-        <form className="relative w-full sm:w-72" action="/vendors" method="GET">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            name="search"
-            placeholder="Search by name, GST, category..."
-            className="pl-9"
-            defaultValue={search || ""}
-          />
-        </form>
+        <RealtimeSearch placeholder="Search by name, GST, category…" />
       </div>
 
       <Card>

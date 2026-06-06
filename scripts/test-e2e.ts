@@ -143,21 +143,15 @@ async function main() {
   const officerCannotMarkPaid = !hasPermission("procurement_officer", "invoice:mark_paid" as any);
   console.log(`   ${officerCannotMarkPaid ? "PASS" : "FAIL"} - procurement officer cannot mark invoice paid`);
 
-  // Finance can mark invoice paid but cannot create vendors
-  const financeCanMarkPaid = hasPermission("finance", "invoice:mark_paid" as any);
-  const financeCannotCreateVendor = !hasPermission("finance", "vendor:create" as any);
-  console.log(`   ${financeCanMarkPaid ? "PASS" : "FAIL"} - finance can mark invoice paid`);
-  console.log(`   ${financeCannotCreateVendor ? "PASS" : "FAIL"} - finance cannot create vendor`);
-
   // Vendor cannot approve quotations
   const vendorCannotApprove = !hasPermission("vendor", "quotation:approve" as any);
   console.log(`   ${vendorCannotApprove ? "PASS" : "FAIL"} - vendor cannot approve quotations`);
 
-  // Manager can approve but not mark paid
+  // Manager can approve AND mark invoice paid (handles invoice payment as part of monitoring workflow)
   const managerCanApprove = hasPermission("manager", "quotation:approve" as any);
-  const managerCannotMarkPaid = !hasPermission("manager", "invoice:mark_paid" as any);
+  const managerCanMarkPaid = hasPermission("manager", "invoice:mark_paid" as any);
   console.log(`   ${managerCanApprove ? "PASS" : "FAIL"} - manager can approve quotations`);
-  console.log(`   ${managerCannotMarkPaid ? "PASS" : "FAIL"} - manager cannot mark invoice paid`);
+  console.log(`   ${managerCanMarkPaid ? "PASS" : "FAIL"} - manager can mark invoice paid`);
 
   console.log("\n=== All E2E checks PASSED ===");
   process.exit(0);

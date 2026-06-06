@@ -17,7 +17,7 @@ export const auth = betterAuth({
         type: "string",
         defaultValue: "procurement_officer",
         required: false,
-        input: false,
+        input: true,
       },
       firstName: {
         type: "string",

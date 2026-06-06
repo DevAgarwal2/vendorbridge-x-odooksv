@@ -4,7 +4,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import type { Role } from "@/lib/rbac";
 
-const VALID_ROLES: Role[] = ["procurement_officer", "manager", "finance", "admin", "vendor"];
+const VALID_ROLES: Role[] = ["procurement_officer", "manager", "admin", "vendor"];
 
 export default async function DashboardLayout({
   children,

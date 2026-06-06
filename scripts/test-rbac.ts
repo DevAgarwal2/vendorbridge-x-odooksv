@@ -44,32 +44,8 @@ async function test() {
   });
   console.log("   Manager created:", managerId);
 
-  // 2. Test: Create finance user
-  console.log("2. Create finance user");
-  const financeId = randomId();
-  await db.insert(user).values({
-    id: financeId,
-    email: `finance-${stamp}@test.com`,
-    name: "Test Finance",
-    role: "finance",
-    firstName: "Test",
-    lastName: "Finance",
-    emailVerified: false,
-    createdAt: now,
-    updatedAt: now,
-  });
-  await db.insert(account).values({
-    id: randomId(),
-    userId: financeId,
-    accountId: financeId,
-    providerId: "credential",
-    createdAt: now,
-    updatedAt: now,
-  });
-  console.log("   Finance created:", financeId);
-
-  // 3. Test: Create admin user
-  console.log("3. Create admin user");
+  // 2. Test: Create admin user
+  console.log("2. Create admin user");
   const adminId = randomId();
   await db.insert(user).values({
     id: adminId,
@@ -92,8 +68,8 @@ async function test() {
   });
   console.log("   Admin created:", adminId);
 
-  // 4. Test: Create a vendor record
-  console.log("4. Create vendor record");
+  // 3. Test: Create a vendor record
+  console.log("3. Create vendor record");
   const [v] = await db.insert(vendors).values({
     name: "RBAC Test Vendor",
     category: "IT",
@@ -101,8 +77,8 @@ async function test() {
   }).returning();
   console.log("   Vendor created:", v.id);
 
-  // 5. Test: Create an RFQ
-  console.log("5. Create RFQ");
+  // 4. Test: Create an RFQ
+  console.log("4. Create RFQ");
   const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const [r] = await db.insert(rfqs).values({
     title: "RBAC Test RFQ",
@@ -117,7 +93,7 @@ async function test() {
   console.log("   RFQ created:", r.id);
 
   // 6. Test: Quotation validation - subtotal calculation
-  console.log("6. Test quotation GST calc");
+  console.log("5. Test quotation GST calc");
   const [q] = await db.insert(quotations).values({
     rfqId: r.id,
     vendorId: v.id,
@@ -132,8 +108,8 @@ async function test() {
   }).returning();
   console.log("   Quotation created:", q.id, "Total: ₹", q.grandTotal);
 
-  // 7. Test: NOT NULL enforcement - try to insert with null category
-  console.log("7. Test NOT NULL constraint on rfqs.category");
+  // 6. Test: NOT NULL enforcement - try to insert with null category
+  console.log("6. Test NOT NULL constraint on rfqs.category");
   try {
     // Cast to bypass type system to test DB constraint
     await db.insert(rfqs).values({
@@ -148,7 +124,7 @@ async function test() {
   }
 
   // 8. Test: Foreign key integrity
-  console.log("8. Test invalid vendor assignment");
+  console.log("7. Test invalid vendor assignment");
   try {
     await db.insert(rfqVendors).values({ rfqId: r.id, vendorId: 99999 });
     console.log("   FAILED: should have thrown");
@@ -157,7 +133,7 @@ async function test() {
   }
 
   // 9. Verify all roles exist
-  console.log("9. Verify role distribution");
+  console.log("8. Verify role distribution");
   const allUsers = await db.select().from(user);
   const roleCounts: Record<string, number> = {};
   for (const u of allUsers) {
@@ -166,7 +142,7 @@ async function test() {
   console.log("   Roles in DB:", roleCounts);
 
   // 10. Verify unique email
-  console.log("10. Test unique email constraint");
+  console.log("9. Test unique email constraint");
   try {
     await db.insert(user).values({
       id: randomId(),

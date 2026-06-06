@@ -22,7 +22,7 @@ import { revalidatePath } from "next/cache";
 import { writeFile, unlink, mkdir } from "node:fs/promises";
 import * as path from "node:path";
 import * as crypto from "node:crypto";
-import { requirePermission, requireUser, AuthError } from "@/lib/rbac";
+import { requirePermission, requireUser, AuthError } from "@/lib/rbac-server";
 import {
   vendorCreateSchema,
   rfqCreateSchema,

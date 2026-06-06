@@ -1,9 +1,12 @@
 // Seed one demo user per role using better-auth's signUp API
 // (so passwords are hashed with the correct format)
+// Then deterministically reset every demo password to PASSWORD so the
+// seeder is fully idempotent — re-running fixes any stale hashes too.
 
 import { db } from "../lib/db";
-import { user } from "../lib/db/schema";
+import { user, account } from "../lib/db/schema";
 import { eq } from "drizzle-orm";
+import { hashPassword } from "better-auth/crypto";
 
 const BASE = "http://localhost:3000";
 
@@ -11,7 +14,6 @@ const DEMO_USERS = [
   { email: "admin@vendorbridge.io", name: "Demo Admin", role: "admin" },
   { email: "manager@vendorbridge.io", name: "Demo Manager", role: "manager" },
   { email: "officer@vendorbridge.io", name: "Demo Officer", role: "procurement_officer" },
-  { email: "finance@vendorbridge.io", name: "Demo Finance", role: "finance" },
   { email: "vendor@vendorbridge.io", name: "Demo Vendor", role: "vendor" },
 ];
 
@@ -46,9 +48,20 @@ async function main() {
 
   console.log(`\n=== Promoting roles in DB ===`);
   for (const u of DEMO_USERS) {
-    if (u.role === "procurement_officer") continue;
     await db.update(user).set({ role: u.role as any }).where(eq(user.email, u.email));
-    console.log(`  ${u.email} → ${u.role}`);
+    console.log(`  ${u.email} -> ${u.role}`);
+  }
+
+  console.log(`\n=== Resetting demo passwords to "${PASSWORD}" ===`);
+  const newHash = await hashPassword(PASSWORD);
+  for (const u of DEMO_USERS) {
+    const [uRow] = await db.select({ id: user.id }).from(user).where(eq(user.email, u.email));
+    if (!uRow) continue;
+    await db
+      .update(account)
+      .set({ password: newHash, updatedAt: new Date() })
+      .where(eq(account.userId, uRow.id));
+    console.log(`  ${u.email} -> password reset`);
   }
 
   const all = await db.select({ email: user.email, role: user.role }).from(user);

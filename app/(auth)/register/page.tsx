@@ -7,7 +7,29 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const ROLES = [
+  { value: "procurement_officer", label: "Procurement Officer" },
+  { value: "manager", label: "Manager / Approver" },
+  { value: "admin", label: "Admin" },
+  { value: "vendor", label: "Vendor" },
+] as const;
+
+type RoleValue = (typeof ROLES)[number]["value"];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,6 +40,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("");
+  const [role, setRole] = useState<RoleValue>("procurement_officer");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,6 +56,7 @@ export default function RegisterPage() {
     if (password !== confirmPassword) return "Passwords do not match";
     if (phone && !/^[+\-\s\d()]{7,20}$/.test(phone)) return "Invalid phone number";
     if (country && country.length > 80) return "Country name too long";
+    if (!ROLES.some((r) => r.value === role)) return "Invalid role";
     return null;
   }
 
@@ -54,6 +78,7 @@ export default function RegisterPage() {
       lastName: lastName.trim(),
       phone: phone.trim(),
       country: country.trim(),
+      role,
       callbackURL: "/",
     } as any);
 
@@ -114,6 +139,24 @@ export default function RegisterPage() {
             />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="role">Role *</Label>
+            <Select value={role} onValueChange={(v) => setRole(v as RoleValue)}>
+              <SelectTrigger id="role" className="w-full">
+                <SelectValue placeholder="Select a role" />
+              </SelectTrigger>
+              <SelectContent>
+                {ROLES.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>
+                    {r.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Pick the role that matches what you&apos;ll do in VendorBridge. Admin actions are still gated server-side.
+            </p>
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="password">Password *</Label>
             <Input
               id="password"
@@ -165,7 +208,9 @@ export default function RegisterPage() {
             </div>
           </div>
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">{error}</p>
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+              {error}
+            </p>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating account…" : "Create account"}
