@@ -156,18 +156,18 @@ Generate a secret: `openssl rand -base64 32`.
 
 ## Setting up with a coding agent
 
-If you'd rather paste a brief into Claude / Cursor / Copilot than read the above, this works:
+Paste this into your assistant:
 
-> I'm working in `/Users/devagarwal/Documents/odoo-hackathon/odoo-hackathon` — a Next.js 16 + React 19 procurement ERP.
->
-> Stack: TypeScript (strict), Tailwind v4, shadcn/ui on Base UI, Drizzle ORM + better-sqlite3, Better Auth (scrypt credentials), Recharts, jsPDF, Zod. Package manager is `bun`.
->
-> First-time setup (in order): `bun install` → copy `.env` (or set `BETTER_AUTH_SECRET` to a 32+ char random string) → `npm run db:push` → `npm run seed` → `npm run seed:users` → `npm run dev` at <http://localhost:3000>.
->
-> Demo accounts all use password `demo1234`: `admin@`, `manager@`, `officer@`, `finance@`, `vendor@vendorbridge.io`.
->
-> Before changing anything, skim: `lib/db/schema.ts` (data model), `lib/rbac.ts` (5 roles × 17 permissions), `lib/actions.ts` (every server action — RBAC + Zod enforced), `lib/auth.ts` (Better Auth config), `lib/validation.ts` (Zod schemas). Don't add new server actions without going through `requirePermission` and a Zod schema. Keep the existing 5-role scope from the problem statement — Admin does not create RFQs/POs, Vendor only sees assigned RFQs.
->
-> Tests: `npm run test:rbac`, `test:e2e`, `test:guards`, `test:actions`, `test:workflow`, `test:pdf`, `test:report`, `test:password`, `test:role-scope`. `npm run lint` and `npx tsc --noEmit` must stay clean.
->
-> Don't commit `.env`, `sqlite.db`, `node_modules/`, `.next/`, RFQ uploads, or any `AGENTS.md` / `CLAUDE.md` — all gitignored.
+> ```
+> git clone https://github.com/DevAgarwal2/vendorbridge-x-odooksv.git
+> cd vendorbridge-x-odooksv
+> bun install
+> cp .env.example .env
+> # set BETTER_AUTH_SECRET in .env to: openssl rand -base64 32
+> npm run db:push
+> npm run seed
+> npm run seed:users
+> npm run dev
+> ```
+> Open <http://localhost:3000>. Demo logins (password `demo1234`): `admin@`, `manager@`, `officer@`, `finance@`, `vendor@vendorbridge.io` (all `vendorbridge.io`).
+> Stack: Next.js 16, React 19, TypeScript, Tailwind v4, shadcn/ui (Base UI), Drizzle + better-sqlite3, Better Auth, Zod. Use `bun`. Read `README.md`, `lib/db/schema.ts`, `lib/rbac.ts`, and `lib/actions.ts` before changing anything. Run `npm run lint` and `npx tsc --noEmit` before declaring done.
