@@ -2,7 +2,7 @@
 
 Procurement ERP for SMBs. Build RFQs, collect vendor quotations, issue purchase orders, and track invoices in one place.
 
-Built for the Odoo Hackathon. Demo data, 4 user roles matching the problem statement, role-scoped access, PDF export, in-app password reset, RFQ attachments, vendor rating.
+Built for the Odoo Hackathon. Demo data, 4 user roles matching the problem statement, role-scoped access, PDF export, in-app password reset, RFQ attachments, vendor rating accordingly.
 
 ## Stack
 
